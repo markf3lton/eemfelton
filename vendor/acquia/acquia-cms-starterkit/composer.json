@@ -1,0 +1,72 @@
+{
+    "name": "acquia/acquia-cms-starterkit",
+    "type": "project",
+    "description": "Acquia CMS starterkit cli command.",
+    "keywords": [
+        "cli",
+        "console",
+        "drupal",
+        "acquia_cms",
+        "starterkit"
+    ],
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Acquia Engineering",
+            "homepage": "https://www.acquia.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Vishal Khode",
+            "email": "vishal.khode@acquia.com",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "acquia/drupal-environment-detector": "^1.4",
+        "composer/composer": "^2.2",
+        "stecman/symfony-console-completion": "^0.11.0 || ^0.12.0",
+        "symfony/config": "^4.4 || ^5 || ^6",
+        "symfony/console": "^4.4 || ^5 || ^6",
+        "symfony/dependency-injection": "^4.4 || ^5 || ^6",
+        "symfony/filesystem": "^4.4 || ^5.4 || ^6",
+        "symfony/http-client": "^5 || ^6",
+        "symfony/http-kernel": "^4.4 || ^5 || ^6",
+        "symfony/process": "^4.4 || ^5 || ^6",
+        "symfony/yaml": "^4.4 || ^5 || ^6"
+    },
+    "require-dev": {
+        "acquia/coding-standards": "^1.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
+        "ergebnis/composer-normalize": "~2.15.0",
+        "phpro/grumphp-shim": "^1.5",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpstan/phpstan": "^1.5",
+        "phpunit/phpunit": "^9"
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true,
+            "phpro/grumphp-shim": true,
+            "webdriver-binary/binary-chromedriver": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "AcquiaCMS\\Cli\\": "src/"
+        }
+    },
+    "repositories": {
+        "assets": {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "bin": [
+        "bin/acms"
+    ]
+}
