@@ -274,9 +274,6 @@ services:
 		class: mglaman\PHPStanDrupal\Type\EntityQuery\EntityQueryAccessCheckDynamicReturnTypeExtension
 		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
 	-
-		class: mglaman\PHPStanDrupal\Type\UrlToStringDynamicReturnTypeExtension
-		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
-	-
 		class: mglaman\PHPStanDrupal\Type\EntityAccessControlHandlerReturnTypeExtension
 		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
 	-
@@ -301,3 +298,7 @@ services:
 		class: mglaman\PHPStanDrupal\Type\EntityQuery\AccessCheckTypeSpecifyingExtension
 		tags:
 			- phpstan.typeSpecifier.methodTypeSpecifyingExtension
+	-
+		class: mglaman\PHPStanDrupal\DeprecatedScope\GroupLegacyScope
+		tags:
+			- phpstan.deprecations.deprecatedScopeResolver

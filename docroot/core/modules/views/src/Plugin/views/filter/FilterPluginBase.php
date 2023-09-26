@@ -84,6 +84,13 @@ abstract class FilterPluginBase extends HandlerBase implements CacheableDependen
   public $always_required = FALSE;
 
   /**
+   * Keyed array by alias of table relations.
+   *
+   * @var string[]
+   */
+  public ?array $tableAliases;
+
+  /**
    * Overrides \Drupal\views\Plugin\views\HandlerBase::init().
    *
    * Provide some extra help to get the operator/value easier to use.
@@ -1158,7 +1165,7 @@ abstract class FilterPluginBase extends HandlerBase implements CacheableDependen
             }
           }
 
-          if (!empty($this->options['group_info']['group_items'][$item_id]['value'][$child])) {
+          if (isset($this->options['group_info']['group_items'][$item_id]['value'][$child])) {
             $row['value'][$child]['#default_value'] = $this->options['group_info']['group_items'][$item_id]['value'][$child];
           }
         }

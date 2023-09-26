@@ -128,7 +128,7 @@
  *   - The request method must be set to the REST method you are using (POST,
  *     GET, PATCH, etc.).
  *   - The content type for the data you send, or the accept type for the
- *     data you are receiving, must be set to 'application/hal+json'.
+ *     data you are receiving, must be set to 'application/json'.
  *   - If you are sending data, it must be JSON-encoded.
  *   - You'll also need to make sure the authentication information is sent
  *     with the request, unless you have allowed access to anonymous users.
@@ -246,7 +246,10 @@
  *   module B some time later, then module A's config/optional directory will be
  *   scanned at that time for newly met dependencies, and the configuration will
  *   be installed then. If module B is never installed, the configuration item
- *   will not be installed either.
+ *   will not be installed either. Optional configuration items are ignored if
+ *   they already exist or if they are not configuration entities (this also
+ *   includes configuration that has an implicit dependency on modules that
+ *   are not yet installed).
  * - Exporting and importing configuration.
  *
  * The file storage format for configuration information in Drupal is
@@ -789,11 +792,6 @@
  * be passed in; see the section at https://www.drupal.org/node/2133171 for more
  * detailed information.
  *
- * Services using factories can be defined as shown in the above example, if the
- * factory is itself a service. The factory can also be a class; details of how
- * to use service factories can be found in the section at
- * https://www.drupal.org/node/2133171.
- *
  * @section sec_container Accessing a service through the container
  * As noted above, if you need to use a service in your code, you should always
  * instantiate the service class via a call to the container, using the machine
@@ -1213,7 +1211,7 @@
  * Drupal has several distinct types of information, each with its own methods
  * for storage and retrieval:
  * - Content: Information meant to be displayed on your site: articles, basic
- *   pages, images, files, custom blocks, etc. Content is stored and accessed
+ *   pages, images, files, content blocks, etc. Content is stored and accessed
  *   using @link entity_api Entities @endlink.
  * - Session: Information about individual users' interactions with the site,
  *   such as whether they are logged in. This is really "state" information, but
@@ -1989,6 +1987,20 @@ function hook_queue_info_alter(&$queues) {
   // This site has many feeds so let's spend 90 seconds on each cron run
   // updating feeds instead of the default 60.
   $queues['mymodule_feeds']['cron']['time'] = 90;
+}
+
+/**
+ * Alter the information provided in \Drupal\Core\Condition\ConditionManager::getDefinitions().
+ *
+ * @param array $definitions
+ *   The array of condition definitions.
+ */
+function hook_condition_info_alter(array &$definitions) {
+  // Add custom or modify existing condition definitions.
+  if (isset($definitions['node_type']) && $definitions['node_type']['class'] == 'Drupal\node\Plugin\Condition\NodeType') {
+    // If the node_type's class is unaltered, use a custom implementation.
+    $definitions['node_type']['class'] = 'Drupal\mymodule\Plugin\Condition\NodeType';
+  }
 }
 
 /**

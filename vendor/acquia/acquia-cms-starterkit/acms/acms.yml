@@ -9,7 +9,12 @@ starter_kits:
         - acquia_cms_search
         - acquia_cms_tour
         - acquia_cms_toolbar
+        - google_tag
+        - honeypot
         - mnsami/composer-custom-directory-installer
+        - recaptcha
+        - reroute_email
+        - shield
       install:
         - acquia_cms_site_studio
         - acquia_cms_page
@@ -31,7 +36,12 @@ starter_kits:
         - acquia_cms_search
         - acquia_cms_tour
         - acquia_cms_toolbar
+        - google_tag
+        - honeypot
         - mnsami/composer-custom-directory-installer
+        - recaptcha
+        - reroute_email
+        - shield
       install:
         - acquia_cms_search
         - acquia_cms_tour
@@ -54,6 +64,8 @@ starter_kits:
         - acquia_cms_toolbar
         - consumer_image_styles
         - mnsami/composer-custom-directory-installer
+        - reroute_email
+        - shield
       install:
         - acquia_cms_headless_ui
         - acquia_cms_search
@@ -101,6 +113,16 @@ questions:
           - no
       skip_on_value: false
       default_value: "no"
+    gdpr_integration:
+      dependencies:
+        starter_kits: acquia_cms_enterprise_low_code || acquia_cms_community
+      question: "Would you like to add GDPR functionality to the site (Yes/No) ?"
+      allowed_values:
+        options:
+          - yes
+          - no
+      default_value: "no"
+      skip_on_value: false
   install:
     nextjs_app:
       dependencies:
