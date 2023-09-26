@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Acquia Perz - module install file.
+ */
+
+use Drupal\acquia_perz\PerzHelper;
+
+/**
+ * Implements hook_install().
+ */
+function acquia_perz_install() {
+
+  PerzHelper::createSiteHash();
+  PerzHelper::migrateSiteId();
+
+  // Ensure acquia_perz hooks are invoked after acquia_lift.
+  module_set_weight('acquia_perz', 10);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function acquia_perz_uninstall() {
+
+  // Delete entity config.
+  $perz_entity_config = \Drupal::configFactory()->getEditable('acquia_perz.entity_config');
+  $perz_entity_config->delete();
+
+  // Delete perz cis settings.
+  $perz_api_settings = \Drupal::configFactory()->getEditable('acquia_connector.settings');
+  $perz_api_settings->clear('third_party_settings.acquia_perz');
+  $perz_api_settings->save();
+
+  // Remove perz state config.
+  \Drupal::state()->delete('acquia_perz.environment');
+  \Drupal::state()->delete('acquia_perz.site_hash');
+}

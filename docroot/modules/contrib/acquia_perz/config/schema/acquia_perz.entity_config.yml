@@ -1,0 +1,31 @@
+# Schema for the configuration files of the Acquia Perz module.
+acquia_perz.entity_config:
+  type: config_object
+  label: 'Acquia Perz entity config'
+  mapping:
+    view_modes:
+      type: sequence
+      label: 'View modes'
+      sequence:
+        type: sequence
+        label: 'Entity type'
+        sequence:
+          type: sequence
+          label: 'Bundle'
+          sequence:
+            type: acquia_perz_view_mode
+            label: 'View mode'
+
+acquia_perz_view_mode:
+  type: config_object
+  label: 'View mode'
+  mapping:
+    render_role:
+      type: string
+      label: 'Render role'
+    preview_image:
+      type: string
+      label: 'Preview image'
+    personalization_label:
+      type: string
+      label: 'Personalization Label'

@@ -1,0 +1,7 @@
+{
+    "name": "drupal/acquia_perz_push",
+    "description": "Provides integration with Content Index Engine for personalization and visitor data collection.",
+    "license": "GPL-2.0-or-later",
+    "type": "drupal-module",
+    "require": {}
+}

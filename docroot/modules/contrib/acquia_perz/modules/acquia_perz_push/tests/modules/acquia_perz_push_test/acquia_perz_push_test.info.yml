@@ -1,0 +1,11 @@
+type: module
+name: Acquia Perz Push Test
+description: Provides custom twig template for block.
+package: Testing
+core_version_requirement: '>=9.2'
+hidden: TRUE
+
+# Information added by Drupal.org packaging script on 2023-09-19
+version: '4.1.4'
+project: 'acquia_perz'
+datestamp: 1695141763

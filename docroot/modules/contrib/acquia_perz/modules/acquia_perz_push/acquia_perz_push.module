@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * @file
+ * Acquia Perz Push - module file.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
+
+/**
+ * Implements hook_entity_insert().
+ */
+function acquia_perz_push_entity_insert(EntityInterface $entity) {
+  if ($entity instanceof EntityPublishedInterface && !$entity->isPublished()) {
+    // Do not process, entity is unpublished.
+    return;
+  }
+
+  \Drupal::getContainer()
+    ->get('acquia_perz_push.export_content')
+    ->exportEntity($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function acquia_perz_push_entity_update(EntityInterface $entity) {
+  if (!$entity instanceof EntityPublishedInterface) {
+    // Do not process, entity is not publishable.
+    return;
+  }
+
+  if ($entity->isPublished()) {
+    \Drupal::getContainer()
+      ->get('acquia_perz_push.export_content')
+      ->exportEntity($entity);
+  }
+  else {
+    \Drupal::getContainer()
+      ->get('acquia_perz_push.export_content')
+      ->deleteEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_predelete().
+ */
+function acquia_perz_push_entity_delete(EntityInterface $entity) {
+  \Drupal::getContainer()
+    ->get('acquia_perz_push.export_content')
+    ->deleteEntity($entity);
+}
+
+/**
+ * Implements hook_entity_translation_predelete().
+ */
+function acquia_perz_push_entity_translation_delete(EntityInterface $translation) {
+  \Drupal::getContainer()
+    ->get('acquia_perz_push.export_content')
+    ->deleteTranslation($translation);
+}

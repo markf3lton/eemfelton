@@ -1,0 +1,7 @@
+acquia_perz.admin_settings:
+  path: 'admin/config/services/acquia-perz/settings'
+  defaults:
+    _form: '\Drupal\acquia_perz\Form\AdminSettingsForm'
+    _title: 'Acquia Personalization Settings'
+  requirements:
+    _permission: 'administer acquia perz'

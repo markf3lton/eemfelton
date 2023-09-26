@@ -1,0 +1,17 @@
+name: Acquia Personalization (Perz)
+description: Provides integration with Content Index Engine for personalization and visitor data collection.
+package: Acquia Perz
+type: module
+core_version_requirement: '>=9.2 <11'
+configure: acquia_perz.admin_settings
+
+dependencies:
+  - acquia_connector:acquia_connector
+  - drupal:node
+  - drupal:taxonomy
+  - drupal:image
+
+# Information added by Drupal.org packaging script on 2023-09-19
+version: '4.1.4'
+project: 'acquia_perz'
+datestamp: 1695141763

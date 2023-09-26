@@ -1,0 +1,4 @@
+acquia_perz.admin_settings:
+  title: 'Acquia Personalization Settings'
+  route_name: acquia_perz.admin_settings
+  base_route: acquia_perz.admin_settings

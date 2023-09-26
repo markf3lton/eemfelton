@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * @file
+ * Acquia Perz - module file.
+ */
+
+use Drupal\acquia_perz\EntityHelper;
+use Drupal\acquia_perz\PerzHelper;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\RoleInterface;
+
+/**
+ * Implements hook_entity_insert().
+ */
+function acquia_perz_entity_insert(EntityInterface $entity) {
+  PerzHelper::runDecisionWebhook($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function acquia_perz_entity_update(EntityInterface $entity) {
+  PerzHelper::runDecisionWebhook($entity);
+}
+
+/**
+ * Implements hook_entity_predelete().
+ */
+function acquia_perz_entity_delete(EntityInterface $entity) {
+  PerzHelper::runDecisionWebhook($entity);
+}
+
+/**
+ * Implements hook_entity_translation_predelete().
+ */
+function acquia_perz_entity_translation_delete(EntityInterface $translation) {
+  PerzHelper::runDecisionWebhook($translation);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function acquia_perz_form_entity_view_display_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $entity_form = $form_state->getFormObject();
+  $entity_view_mode = $entity_form->getEntity()->getMode();
+  $entity_type_id = $form['#entity_type'];
+
+  // Checks if entity implements Drupal\Core\Entity\EntityPublishedInterface
+  // If not , Do not attach Personalization Form Element.
+  $implementsEntityPublishedInterface = \Drupal::entityTypeManager()
+    ->getDefinition($entity_type_id)
+    ->entityClassImplements('Drupal\Core\Entity\EntityPublishedInterface');
+
+  if (!$implementsEntityPublishedInterface) {
+    return;
+  }
+
+  $bundle = $form['#bundle'];
+  $config = \Drupal::service('config.factory')->get(EntityHelper::ENTITY_CONFIG_NAME);
+  $config_view_modes = $config->get('view_modes');
+  $view_mode = FALSE;
+  if ((!empty($config_view_modes) && isset($config_view_modes[$entity_type_id][$bundle])
+    && array_key_exists($entity_view_mode, $config_view_modes[$entity_type_id][$bundle]))) {
+    $view_mode = TRUE;
+  }
+
+  $form['personalization'] = [
+    '#type' => 'details',
+    '#open' => TRUE,
+    '#title' => t('Acquia Personalization'),
+    '#tree' => TRUE,
+  ];
+
+  $form['personalization']['view_mode'][$entity_view_mode] = [
+    '#type' => 'checkbox',
+    '#title' => t('Available to Personalization Service'),
+    '#default_value' => $view_mode,
+  ];
+  $image_fields = PerzHelper::collectImageFields($entity_type_id, $bundle);
+  if (!empty($image_fields)) {
+    $config_image_preview_name = sprintf('view_modes.%s.%s.%s.preview_image', $entity_type_id, $bundle, $entity_view_mode);
+    $form['personalization']['acquia_perz_preview_image'] = [
+      '#type' => 'select',
+      '#title' => t("Select bundle's preview image field."),
+      '#options' => $image_fields,
+      '#empty_option' => t('None'),
+      '#empty_value' => '',
+      '#default_value' => $config->get($config_image_preview_name),
+      '#states' => [
+        'visible' => [
+          [':input[name="personalization[view_mode][' . $entity_view_mode . ']"]' => ['checked' => TRUE]],
+        ],
+      ],
+    ];
+  }
+
+  $roles = \Drupal::service('entity_type.manager')->getStorage('user_role')->loadMultiple();
+  $options = [];
+  foreach ($roles as $role) {
+    $options[$role->id()] = $role->label();
+  }
+  $config_role_name = sprintf('view_modes.%s.%s.%s.render_role', $entity_type_id, $bundle, $entity_view_mode);
+  $form['personalization']['render_role'] = [
+    '#title' => t('Render role'),
+    '#description' => t('The role to use when rendering entities for personalization.'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => $config->get($config_role_name) ?? RoleInterface::ANONYMOUS_ID,
+    '#states' => [
+      'visible' => [
+        [':input[name="personalization[view_mode][' . $entity_view_mode . ']"]' => ['checked' => TRUE]],
+      ],
+    ],
+  ];
+
+  $personalization_label_options = [];
+  $entityFieldManager = \Drupal::service('entity_field.manager');
+  $fields = $entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
+  foreach ($fields as $field_name => $field_definition) {
+    if (!empty($field_definition->getTargetBundle()) && $field_definition->getType() == 'string') {
+      $personalization_label_options[$field_name] = $field_definition->getLabel();
+    }
+  }
+  $selected_personalization_label = sprintf('view_modes.%s.%s.%s.personalization_label', $entity_type_id, $bundle, $entity_view_mode);
+  $form['personalization']['personalization_label'] = [
+    '#title' => t('Personalization Label'),
+    '#description' => t('The text field to use as label when exporting entities to Personalization.'),
+    '#type' => 'select',
+    '#options' => $personalization_label_options,
+    '#default_value' => $config->get($selected_personalization_label),
+    '#empty_value' => 'default',
+    '#empty_option' => t('Default'),
+    '#states' => [
+      'visible' => [
+        [':input[name="personalization[view_mode][' . $entity_view_mode . ']"]' => ['checked' => TRUE]],
+      ],
+    ],
+  ];
+
+  // Add submit handlers.
+  array_unshift($form['actions']['submit']['#submit'], 'acquia_perz_entity_config_form_submit');
+}
+
+/**
+ * Save the field settings from the 'Manage display' screen.
+ */
+function acquia_perz_entity_config_form_submit(array $form, FormStateInterface $form_state) {
+  $entity_type_id = $form['#entity_type'];
+  $bundle = $form['#bundle'];
+  $entity_form = $form_state->getFormObject();
+  $entity_display = $entity_form->getEntity();
+  $entity_view_mode = $entity_display->getMode();
+
+  $form_state_data = array_filter($form_state->getValue('personalization'));
+
+  $config = \Drupal::service('config.factory')->getEditable(EntityHelper::ENTITY_CONFIG_NAME);
+  $config_view_mode = $config->get('view_modes');
+
+  // Check if view modes exist and disabled in current request.
+  PerzHelper::removeViewModeFromConfig($entity_type_id, $bundle, $entity_view_mode, $form_state_data, $config_view_mode);
+  $config->set('view_modes', $config_view_mode);
+  $config->save();
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * Create and attach settings and library
+ * only when path context agrees on attaching.
+ */
+function acquia_perz_page_attachments_alter(array &$page) {
+  $path_context = \Drupal::service('acquia_perz.service.context.path_context');
+  if (!$path_context->shouldAttach()) {
+    return;
+  }
+
+  $page_context = \Drupal::service('acquia_perz.service.context.page_context');
+
+  // Populate contexts.
+  $path_context->populate($page);
+  $page_context->populate($page);
+
+}

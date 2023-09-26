@@ -1,0 +1,13 @@
+acquia_perz_push.settings:
+  type: config_object
+  label: 'Acquia Perz Push CIS Settings'
+  mapping:
+    cis:
+      type: mapping
+      mapping:
+        queue_bulk_max_size:
+          type: integer
+          label: 'Queue bulk max size'
+        endpoint_timeout:
+          type: integer
+          label: 'Endpoint timeout'

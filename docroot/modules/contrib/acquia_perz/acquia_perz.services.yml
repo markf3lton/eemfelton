@@ -1,0 +1,61 @@
+services:
+  acquia_perz.entity_settings:
+    class: Drupal\Core\Config\ImmutableConfig
+    factory: config.factory:get
+    arguments:
+      - 'acquia_perz.entity_config'
+
+  acquia_perz.cis_settings:
+    class: Drupal\Core\Config\ImmutableConfig
+    factory: config.factory:get
+    arguments:
+      - 'acquia_perz.settings'
+
+  acquia_perz.entity_helper:
+    class: Drupal\acquia_perz\EntityHelper
+    arguments: [
+        '@entity_type.manager',
+        '@entity_field.manager',
+        '@renderer',
+        '@date.formatter',
+        '@datetime.time',
+        '@config.factory',
+        '@database',
+        '@file_url_generator',
+    ]
+  acquia_perz.client_factory:
+    class: Drupal\acquia_perz\ClientFactory
+    arguments: [
+        '@state',
+        '@config.factory',
+        '@logger.factory',
+        '@extension.list.module',
+        '@http_kernel',
+        '@psr7.http_message_factory',
+        '@psr7.http_foundation_factory',
+        '@acquia_connector.subscription'
+    ]
+
+  acquia_perz.connector.settings:
+    class: Drupal\acquia_perz\EventSubscriber\PerzProductSettings
+    tags:
+      - { name: event_subscriber }
+    arguments: [ '@config.factory' ]
+
+  acquia_perz.connector.subscription_data:
+    class: Drupal\acquia_perz\EventSubscriber\AcquiaSubscriptionData\AcquiaPerzData
+    tags:
+      - { name: event_subscriber }
+    arguments: [ '@request_stack' ]
+
+  acquia_perz.service.context.page_context:
+    class: Drupal\acquia_perz\Service\Context\PageContext
+    arguments: [ '@config.factory', '@entity_type.manager', '@request_stack', '@current_route_match', '@title_resolver', '@language_manager', '@acquia_connector.subscription']
+
+  acquia_perz.service.context.path_context:
+    class: Drupal\acquia_perz\Service\Context\PathContext
+    arguments: [ '@config.factory', '@path.current', '@request_stack', '@acquia_perz.service.helper.path_matcher', '@acquia_connector.subscription' ]
+
+  acquia_perz.service.helper.path_matcher:
+    class: Drupal\acquia_perz\Service\Helper\PathMatcher
+    arguments: [ '@path_alias.manager', '@path.matcher' ]

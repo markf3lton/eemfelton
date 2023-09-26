@@ -1,0 +1,15 @@
+acquia_perz_push.export_form:
+  path: 'admin/config/services/acquia-perz/export'
+  defaults:
+    _form: '\Drupal\acquia_perz_push\Form\ExportForm'
+    _title: 'Export'
+  requirements:
+    _permission: 'administer acquia perz push'
+
+acquia_perz_push.acquia_delete_personalization_data_form:
+  path: 'admin/config/services/acquia-perz/delete'
+  defaults:
+    _form: '\Drupal\acquia_perz_push\Form\DeletePersonalizationDataForm'
+    _title: 'Delete'
+  requirements:
+    _permission: 'administer acquia perz push'

@@ -1,0 +1,3 @@
+# Add the Acquia Perz module until it can get added upstream
+drupal/acquia_perz:
+  version_dev: "4.x-dev"
